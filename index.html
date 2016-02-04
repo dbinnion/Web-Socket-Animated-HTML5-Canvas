@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body
+            {
+                text-align: center;
+            }
+            #sketchpad 
+            {
+                float:none;
+                border:2px solid #888;
+                border-radius:4px;
+                position:relative; /* Necessary for correct mouse co-ords in Firefox */
+            }
+        </style>
+        <title>Web Socket</title>
+    </head>
+    <body onload="init()">
+            <form>
+                <div>Width of Canvas:
+                    <select id="canvas_width" name="canvas width">
+                        <option value="250">250</option>
+                        <option value="300">300</option>
+                        <option value="350">350</option>
+                        <option value="400">400</option>
+                        <option value="450">450</option>
+                        <option selected value="500">500</option>
+                        <option value="550">550</option>
+                        <option value="600">600</option>
+                        <option value="650">650</option>
+                        <option value="700">700</option>
+                        <option value="750">750</option>
+                        <option value="800">800</option>
+                        <option value="850">850</option>
+                        <option value="900">900</option>
+                        <option value="950">950</option>
+                        <option value="1000">1000</option>
+                    </select>    
+                    Height of Canvas:
+                    <select id="canvas_height" name="canvas height">
+                        <option value="250">250</option>
+                        <option value="300">300</option>
+                        <option value="350">350</option>
+                        <option value="400">400</option>
+                        <option value="450">450</option>
+                        <option selected value="500">500</option>
+                        <option value="550">550</option>
+                        <option value="600">600</option>
+                        <option value="650">650</option>
+                        <option value="700">700</option>
+                        <option value="750">750</option>
+                        <option value="800">800</option>
+                        <option value="850">850</option>
+                        <option value="900">900</option>
+                        <option value="950">950</option>
+                        <option value="1000">1000</option>
+                    </select> 
+                    <button id="edit_dimensions" name="edit dimensions" value="0" type="button" onclick="updateCanvas()">
+                            Edit Dimensions
+                    </button>
+                </div>
+                <br>
+                <div>
+                    Color of Canvas Background:
+                    <select id="canvas_background_color" name="canvas background color">
+                        <option value="1">White</option>
+                        <option value="2">Gray</option>
+                        <option value="3">Green</option>
+                    </select>
+                    Color of Window Background:
+                    <select id="window_background_color" name="window background color">
+                        <option value="1">White</option>
+                        <option value="2">Black</option>
+                    </select>
+                    <button id="edit_colors" name="edit colors" value="0" type="button" onclick="updateBackground()">
+                            Edit Backgrounds
+                    </button>
+                </div>
+                <br>
+                <div>
+                    Number of position markers:
+                    <!-- input the number of positions to make -->
+                    <select id="num_position_markers" name="number of elements">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                        <option value="60">60</option>
+                        <option value="70">70</option>
+                        <option value="80">80</option>
+                        <option value="90">90</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="300">300</option>
+                        <option value="400">400</option>
+                        <option value="500">500</option>
+                        <option value="600">600</option>
+                        <option value="700">700</option>
+                        <option value="800">800</option>
+                        <option value="900">900</option>
+                        <option value="1000">1000</option>
+                    </select>    
+                    Number of moves per second:
+                    <!-- input the number of frames per second -->
+                    <select id="frames_per_second" name="number of elements">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                        <option value="60">60</option>
+                    </select>     
+                </div>
+                <br>
+                <div>
+                    Color of Position Markers:
+                    <select id="color_position_markers" name="number of elements">
+                        <option value="1">Black</option>
+                        <option value="2">Red</option>
+                    </select>    
+                    Shape of Position Markers:
+                    <select id="shape_position_markers" name="number of elements">
+                        <option value="1">Circle</option>
+                        <option value="2">Rectangle</option>
+                    </select>
+                </div>
+                <br>
+                <div>
+                    Color of Obstacles:
+                    <select id="color_obstacles" name="number of elements">
+                        <option value="1">Black</option>
+                        <option value="2">Red</option>
+                    </select>    
+                    Shape of Obstacle to Draw:
+                    <select id="shape_obstacles" name="number of elements">
+                        <option value="1">Circle</option>
+                        <option value="2">Rectangle</option>
+                    </select>
+                </div>
+                <br>
+                <div>Configuration:
+                    <select id="configuration" name="configuration">
+                        <option value="1" onclick="updateOne()">Configuration 1</option>
+                        <option value="2" onclick="updateOne()">Configuration 2</option>
+                        <option value="3" onclick="updateOne()">Configuration 3</option>
+                    </select>   
+                    <button id="edit_config" name="edit config" value="0" type="button" onclick="updateConfig()">
+                        Edit Configuration
+                    </button>
+                    <div id="fill">
+                    </div>
+                </div>
+                <br>
+                <input onclick="sendMessage();" value="Start sim" type="button">
+                <input onclick="stopInterval();" value="Stop sim" type="button">
+                <input onclick="pauseInterval();" value="Pause sim" type="button">
+                <input onclick="resumeInterval();" value="Resume sim" type="button">
+                <input onclick="clearAll();" value="Clear sim" type="button">
+            </form>
+            <div id="canvas_container">
+                <canvas id="sketchpad" height="500" width="500">
+                </canvas>
+            </div>
+
+        <br>
+        <script type="text/javascript">
+/*******************************************************************************
+ *variables
+ ******************************************************************************/            
+            //socket location
+            var webSocket = new WebSocket("ws://localhost:8080/WebSocket/endpoint");
+            
+            //to manage animation
+            var continueAnimation=1;
+            var drawAllowed=true;
+         
+            //reference to canvas and 2dcanvas context
+            var canvas,ctx;
+
+            //to keep track of the mouse position and mouse button status 
+            var mouseX,mouseY,mouseDown=0;
+
+            //to keep track of the touch position
+            var touchX,touchY;
+            
+            var initX;      //where user starts draw
+            var finX;        //where user ends draw
+            var initY;      //where user starts draw
+            var finY;        //where user ends draw
+            var initSet;    //are the initial variables set
+            var finSet;  //are all the drawing variables set
+            var obstacleArray=[];   //store obstacle information as strings in order (with circle or square)
+
+/*******************************************************************************
+ *input control methods
+ ******************************************************************************/
+            function updateBackground()
+            {
+                if(window_background_color.value==="1") //white
+                {
+                    document.body.style.background = "#ffffff"; 
+                    document.body.style.color = "#000000";
+                }
+                else    //black
+                {
+                    //change background color AND text color
+                    document.body.style.background = "#000000";
+                    document.body.style.color = "#ffffff";
+                }
+        
+                if(canvas_background_color.value==="1") //white
+                {
+                    document.getElementById("sketchpad").style.background="#ffffff";
+                }
+                else if(canvas_background_color.value==="2")    //gray
+                {
+                    document.getElementById("sketchpad").style.background="#808080";
+                }
+                else    //light green
+                {
+                    document.getElementById("sketchpad").style.background="#00cc00";
+                }
+            }
+        
+            function updateCanvas()
+            {
+                var newWidth = document.getElementById("canvas_width").value;
+                var newHeight = document.getElementById("canvas_height").value;
+                document.getElementById("sketchpad").setAttribute("width",newWidth);
+                document.getElementById("sketchpad").setAttribute("height",newHeight);
+            }
+
+            function updateConfig()
+            {
+                var config = document.getElementById("configuration").value;
+                //change button value to value of configuration generated
+                switch(config) 
+                {
+                    case "1":
+                        document.getElementById("edit_config").value="1";
+                        document.getElementById("fill").innerHTML="<br>\n\
+                        Basic Configuration.  Edit fields above.";
+                        break;
+                    case "2":
+                        document.getElementById("edit_config").value="2";
+                        document.getElementById("fill").innerHTML="<br>\n\
+                Width of the Circle: \n\
+                <br>\n\
+                <select id=\"width_of_circle\" name=\"width of circle\">\n\
+                    <option value=\"1\">1</option>\n\
+                    <option value=\"2\">2</option>\n\
+                    <option value=\"3\">3</option>\n\
+                    <option value=\"4\">4</option>\n\
+                    <option value=\"5\">5</option>\n\
+                    <option value=\"6\">6</option>\n\
+                    <option value=\"7\">7</option>\n\
+                    <option value=\"8\">8</option>\n\
+                    <option value=\"9\">9</option>\n\
+                    <option value=\"10\">10</option>\n\
+                    <option value=\"20\">20</option>\n\
+                    <option value=\"30\">30</option>\n\
+                    <option value=\"40\">40</option>\n\
+                    <option value=\"50\">50</option>\n\
+                    <option value=\"60\">60</option>\n\
+                </select>";
+                        break;
+                    case "3":
+                        document.getElementById("edit_config").value="3";
+                        document.getElementById("fill").innerHTML="<br>\n\
+                Amplitude of the Sin Wave: \n\
+                <br>\n\
+                <select id=\"amplitude_of_sin_wave\" name=\"amplitude of sin wave\">\n\
+                    <option value=\"1\">1</option>\n\
+                    <option value=\"2\">2</option>\n\
+                    <option value=\"3\">3</option>\n\
+                    <option value=\"4\">4</option>\n\
+                    <option value=\"5\">5</option>\n\
+                    <option value=\"6\">6</option>\n\
+                    <option value=\"7\">7</option>\n\
+                    <option value=\"8\">8</option>\n\
+                    <option value=\"9\">9</option>\n\
+                    <option value=\"10\">10</option>\n\
+                    <option value=\"20\">20</option>\n\
+                    <option value=\"30\">30</option>\n\
+                    <option value=\"40\">40</option>\n\
+                    <option value=\"50\">50</option>\n\
+                    <option value=\"60\">60</option>\n\
+                </select>\n\
+                <br>\n\
+                <br>\n\
+                Frequency of the Sin Wave: \n\
+                <br>\n\
+                <select id=\"frequency_of_sin_wave\" name=\"frequency of sin wave\">\n\
+                    <option value=\"1\">1</option>\n\
+                    <option value=\"2\">2</option>\n\
+                    <option value=\"3\">3</option>\n\
+                    <option value=\"4\">4</option>\n\
+                    <option value=\"5\">5</option>\n\
+                    <option value=\"6\">6</option>\n\
+                    <option value=\"7\">7</option>\n\
+                    <option value=\"8\">8</option>\n\
+                    <option value=\"9\">9</option>\n\
+                    <option value=\"10\">10</option>\n\
+                    <option value=\"20\">20</option>\n\
+                    <option value=\"30\">30</option>\n\
+                    <option value=\"40\">40</option>\n\
+                    <option value=\"50\">50</option>\n\
+                    <option value=\"60\">60</option>\n\
+                </select>";
+                        break;
+                } 
+            }
+
+/*******************************************************************************
+ * server control methods
+ ******************************************************************************/
+
+            //when the socket is opened
+            webSocket.onopen = function(){processOpen();};
+            //when the server sends a message
+            webSocket.onmessage = function(message){processMessage(message);};		
+            //when the socket is closed
+            webSocket.onclose = function(){processClose();};
+            //when there is an error
+            webSocket.onerror = function(){processError();};
+
+            //what to do when the socket is opened
+            function processOpen()
+            {
+                //tell the user about the connection starting
+                //messagesTextArea.value += "Connected to Server.\n";
+            }
+
+            //what to do when a message is sent
+            function sendMessage()
+            {  
+                clearCanvas(canvas,ctx);
+                var button_value=document.getElementById("edit_config").value;
+                var configuration_value=document.getElementById("configuration").value;
+                var num_positions=num_position_markers.value;
+                var num_frames=frames_per_second.value; //not to pass to server
+                //pass dimensions of canvas
+                var max_x = document.getElementById("sketchpad").getAttribute("width");
+                var max_y = document.getElementById("sketchpad").getAttribute("height");
+
+                //set order of variables to configuration, number of objects, maximum x, maximum y, configuration variables
+                var value_array = [configuration_value,num_positions,max_x,max_y];
+
+                //if the defaults have not been changed
+                switch(button_value)
+                {
+                    case "0": //has not been pressed.  all are default
+                    case "1": //was pressed for 1.  nothing changes.
+                        //get which configuration 
+                        //set default values for that configuration (half of max value)
+                        //push to array
+                        switch(configuration_value) 
+                        {
+                            case "1":
+                                //nothing.  use num_position and num_frames only
+                                break;
+                            case "2":
+                                value_array.push(30); //width of the circle
+                                break;
+                            case "3":
+                                value_array.push(30); //amplitude of the sin wave
+                                value_array.push(30); //frequency of the sin wave
+                                break;
+                        }
+                        break;
+                    case "2": //was pressed for 2.
+                        //get which configuration
+                        //get the values from the user altered html
+                        //push to array
+                        switch(configuration_value) 
+                        {
+                            case "1":
+                                //nothing.  use num_position and num_frames only
+                                break;
+                            case "2":
+                                value_array.push(document.getElementById("width_of_circle").value);
+                                break;
+                            case "3":
+                                value_array.push(30); //amplitude of the sin wave
+                                value_array.push(30); //frequency of the sin wave
+                                break;
+                        }
+                        break;
+                    case "3": //was pressed for 3.
+                        //get which configuration
+                        //get the values from the user altered html
+                        //push to array
+                        switch(configuration_value) 
+                        {
+                            case "1":
+                                //nothing.  use num_position and num_frames only
+                                break;
+                            case "2":
+                                value_array.push(30); //width of the circle
+                                break;
+                            case "3":
+                                value_array.push(document.getElementById("amplitude_of_sin_wave").value);
+                                value_array.push(document.getElementById("frequency_of_sin_wave").value);
+                                break;
+                        }
+                        break;
+                }
+                
+                var index;
+                
+                //add whatever obstacles exist
+                for (index = 0; index < obstacleArray.length; index++) {
+                    value_array.push(obstacleArray[index]);
+                }
+                
+                //send variables to the server
+                var stringToServer = "";
+                for (index = 0; index < value_array.length; index++) {
+                    stringToServer += value_array[index]+" ";
+                }
+
+                webSocket.send(stringToServer);
+
+                //loop and continue pinging server
+                var loop = window.setInterval(function () {
+                    if(continueAnimation===1)
+                    {
+                        clearCanvas(canvas,ctx);
+                        //ping server for update every timestamp
+                        webSocket.send(1);
+                    }
+                    else if(continueAnimation===0)
+                    {
+                        clearInterval(loop);
+                    }
+                    else
+                    {
+                        clearInterval(loop);
+                        clearCanvas(canvas,ctx);
+                    }
+                }, 1000/num_frames);
+                continueAnimation=1;
+                drawAllowed=true;
+            }
+
+            //what to do is the connection to the server is closed
+            function processClose()
+            {
+                //tell the user about the disconnect in case something happens to server
+                //messagesTextArea.value += "Disconnecting from Server...\n";
+            }
+
+            //what to do if there's an error
+            function processError()
+            {
+                //messagesTextArea.value += "error..."+"\n";
+            }
+
+            //what to do if a message is received
+            function processMessage(message)
+            {
+                var stringForJSON=""+message.data;
+                if(stringForJSON==="0")
+                {
+                    //if server is finished generating data, stop
+                    stopInterval();
+                }
+                else
+                {
+                    var arr = JSON.parse(stringForJSON);
+                    var i;
+
+                    //for each in the input, get x and y values
+                    for(i = 0; i < arr.length; i++) {
+                        //messagesTextArea.value += arr[i].x_value+","+arr[i].y_value+"\n";
+                        //draw on the canvas
+                        if(drawAllowed)
+                        {
+                            drawDot(ctx,arr[i].x_value,arr[i].y_value,3);
+                        }
+                    }
+                    redrawShapes();
+                }
+            }
+
+/*******************************************************************************
+ * animation control methods
+ ******************************************************************************/
+
+            //way to pause the animation
+            function pauseInterval()
+            {
+                drawAllowed=false;
+                continueAnimation=0;
+                webSocket.send(0);
+            }
+            
+            //way to resume the animation
+            function resumeInterval()
+            {
+                var num_frames=frames_per_second.value;
+                var loop = window.setInterval(function () {
+                    if(continueAnimation===1)
+                    {
+                        clearCanvas(canvas,ctx);
+                        //ping server for update every timestamp
+                        webSocket.send(1);
+                    }
+                    else if(continueAnimation===0)
+                    {
+                        clearInterval(loop);
+                    }
+                    else
+                    {
+                        clearInterval(loop);
+                        clearCanvas(canvas,ctx);
+                    }
+                }, 1000/num_frames);
+                continueAnimation=1;
+                drawAllowed=true;
+            }
+
+            //way to stop the animation
+            function stopInterval()
+            {
+                drawAllowed=false;
+                continueAnimation=false;
+                webSocket.send(-1);
+            }
+           
+/*******************************************************************************
+ * basic canvas methods
+ ******************************************************************************/
+
+            //draw a dot at the coordinates
+            function drawDot(ctx,x,y,size) 
+            {
+                var color_positions = color_position_markers.value;
+                var shape_positions = shape_position_markers.value;
+
+                if(color_positions==="1")  //black
+                {
+                    //use black for the dots 
+                    r=0; g=0; b=0; a=255;
+                }
+                else    //red
+                {
+                    //use red for the dots 
+                    r=255; g=0; b=0; a=255;
+                }
+                
+                //context fill style
+                ctx.fillStyle = "rgba("+r+","+g+","+b+","+(a/255)+")";
+
+                if(shape_positions==="1")  //circle
+                {
+                    //draw a filled circle
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI*2, true); 
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                else    //square
+                {
+                    //draw a filled circle
+                    ctx.beginPath();
+                    ctx.fillRect(x,y,size * 2,size * 2); 
+                    ctx.closePath();
+                }
+            }
+            
+            /*
+            //draw a dot at the coordinates
+            function drawUserDot(ctx,x,y,size) 
+            {
+                var color_positions = color_obstacles.value;
+                var shape_positions = shape_obstacles.value;
+
+                if(color_positions==="1")  //black
+                {
+                    //use black for the dots 
+                    r=0; g=0; b=0; a=255;
+                }
+                else    //red
+                {
+                    //use red for the dots 
+                    r=255; g=0; b=0; a=255;
+                }
+                
+                //context fill style
+                ctx.fillStyle = "rgba("+r+","+g+","+b+","+(a/255)+")";
+
+                if(shape_positions==="1")  //circle
+                {
+                    //draw a filled circle
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI*2, true); 
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                else    //square
+                {
+                    //draw a filled circle
+                    ctx.beginPath();
+                    ctx.fillRect(x,y,size * 2,size * 2); 
+                    ctx.closePath();
+                }
+            }*/
+                                                                
+            function drawShape(initX,initY,finX,finY)
+            {
+                if(shape_obstacles.value==="1")
+                {
+                    //parse to int.  happens on the canvas anyway.
+                    var radius=parseInt(Math.sqrt(Math.pow((finX-initX),2)+Math.pow((finY-initY),2)));
+                    if(color_obstacles.value==="1")
+                    {
+                        ctx.fillstyle="black";
+                    }
+                    else
+                    {
+                        ctx.fillStyle="red";
+                    }
+                    ctx.beginPath();
+                    ctx.arc(initX,initY,radius,0,2 * Math.PI);
+                    ctx.stroke();
+                    ctx.fill();
+                    
+                    obstacleArray.push("Circle");
+                    obstacleArray.push(initX);
+                    obstacleArray.push(initY);
+                    obstacleArray.push(radius);
+                }
+                else
+                {
+                    if(color_obstacles.value==="1")
+                    {
+                        ctx.fillStyle="black";
+                    }
+                    else
+                    {
+                        ctx.fillStyle="red";
+                    }
+                    ctx.fillRect(initX,initY,finX-initX,finY-initY);
+                    
+                    obstacleArray.push("Rectangle");
+                    obstacleArray.push(initX);
+                    obstacleArray.push(initY);
+                    obstacleArray.push(finX);
+                    obstacleArray.push(finY);
+                }
+            }
+            
+            function redrawShapes()
+            {
+                var index;
+                
+                for(index=0;index<obstacleArray.length;index++)
+                {
+                    if(obstacleArray[index]==="Circle")
+                    {
+                        if(color_obstacles.value==="1")
+                        {
+                            ctx.fillstyle="black";
+                        }
+                        else
+                        {
+                            ctx.fillStyle="red";
+                        }
+                        ctx.beginPath();
+                        ctx.arc(obstacleArray[index+1],obstacleArray[index+2],obstacleArray[index+3],0,2 * Math.PI);
+                        ctx.stroke();
+                        ctx.fill();
+                        index=index+3;
+                    }
+                    else if(obstacleArray[index]==="Rectangle")
+                    {
+                        if(color_obstacles.value==="1")
+                        {
+                            ctx.fillStyle="black";
+                        }
+                        else
+                        {
+                            ctx.fillStyle="red";
+                        }
+                        var width=obstacleArray[index+3]-obstacleArray[index+1];
+                        var height=obstacleArray[index+4]-obstacleArray[index+2];
+                        ctx.fillRect(obstacleArray[index+1],obstacleArray[index+2],width,height);
+                    }
+                }
+            }
+            
+            function clearAll()
+            {
+                obstacleArray=[];
+                clearCanvas(canvas,ctx);
+            }
+            function clearCanvas(canvas,ctx) 
+            {    
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            function init() 
+            {
+                //get the canvas from the HTML document
+                canvas = document.getElementById('sketchpad');
+
+                //if the browser supports the canvas, get the context
+                if (canvas.getContext)
+                    ctx = canvas.getContext('2d');
+
+                //check for valid context, then add event handlers
+                if (ctx) {
+                    // React to mouse events on the canvas, and mouseup on the entire document
+                    canvas.addEventListener('mousedown', sketchpad_mouseDown, false);
+                    canvas.addEventListener('mousemove', sketchpad_mouseMove, false);
+                    canvas.addEventListener('mouseup', sketchpad_mouseUp, false);
+                    canvas.addEventListener('mouseout', sketchpad_mouseOut, false);
+                }
+            }
+            
+/*******************************************************************************
+ * mouse methods
+ ******************************************************************************/
+            
+            //draw a dot whenever the mouse button is pressed
+            function sketchpad_mouseDown() 
+            {
+                mouseDown=1;
+                //drawUserDot(ctx,mouseX,mouseY,3);
+                initX=mouseX;
+                initY=mouseY;
+                initSet=true;
+            }
+
+            //change mouse variable whenever mouse button is released
+            function sketchpad_mouseUp() 
+            {
+                mouseDown=0;
+                finX=mouseX;
+                finY=mouseY;
+                finSet=true;
+            }
+
+            //don't do anything if mouse is not on the canvas
+            function sketchpad_mouseOut(e)
+            {
+                if(mouseDown===0){ return; }
+                e.preventDefault();
+                e.stopPropagation();
+                mouseDown=0;
+            }
+
+            //track mouse and draw a dot if mouse button is pressed
+            function sketchpad_mouseMove(e) 
+            { 
+                //update mouse position
+                getMousePos(e);
+                
+                if(initSet && finSet)
+                {
+                    drawShape(initX,initY,finX,finY);
+                    initSet=false;
+                    finSet=false;
+                }
+            }
+
+            //get the current mouse position relative to the origin (top left)
+            function getMousePos(e) 
+            {
+                if (!e)
+                    var e = event;
+
+                if (e.offsetX) {
+                    mouseX = e.offsetX;
+                    mouseY = e.offsetY;
+                }
+                else if (e.layerX) {
+                    mouseX = e.layerX;
+                    mouseY = e.layerY;
+                }
+             }
+        </script>
+    </body>
+</html>
