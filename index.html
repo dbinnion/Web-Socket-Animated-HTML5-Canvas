@@ -25,9 +25,9 @@
                         <option value="250">250</option>
                         <option value="300">300</option>
                         <option value="350">350</option>
-                        <option value="400">400</option>
+                        <option selected value="400">400</option>
                         <option value="450">450</option>
-                        <option selected value="500">500</option>
+                        <option value="500">500</option>
                         <option value="550">550</option>
                         <option value="600">600</option>
                         <option value="650">650</option>
@@ -44,9 +44,9 @@
                         <option value="250">250</option>
                         <option value="300">300</option>
                         <option value="350">350</option>
-                        <option value="400">400</option>
+                        <option selected value="400">400</option>
                         <option value="450">450</option>
-                        <option selected value="500">500</option>
+                        <option value="500">500</option>
                         <option value="550">550</option>
                         <option value="600">600</option>
                         <option value="650">650</option>
@@ -88,12 +88,13 @@
                         <option value="20">20</option>
                         <option value="30">30</option>
                         <option value="40">40</option>
-                        <option value="50">50</option>
+                        <option selected value="50">50</option>
                         <option value="60">60</option>
                         <option value="70">70</option>
                         <option value="80">80</option>
                         <option value="90">90</option>
                         <option value="100">100</option>
+                        <!-- option values removed due to data being generated before display
                         <option value="200">200</option>
                         <option value="300">300</option>
                         <option value="400">400</option>
@@ -103,6 +104,7 @@
                         <option value="800">800</option>
                         <option value="900">900</option>
                         <option value="1000">1000</option>
+                        -->
                     </select>    
                     Number of moves per second:
                     <!-- input the number of frames per second -->
@@ -118,9 +120,11 @@
                         <option value="9">9</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
-                        <option value="30">30</option>
+                        <option selected value="30">30</option>
+                        <!--
                         <option value="40">40</option>
                         <option value="50">50</option>
+                        -->
                         <option value="60">60</option>
                     </select>     
                 </div>
@@ -153,12 +157,12 @@
                 <br>
                 <div>Configuration:
                     <select id="configuration" name="configuration">
-                        <option value="1" onclick="updateOne()">Configuration 1</option>
-                        <option value="2" onclick="updateOne()">Configuration 2</option>
-                        <option value="3" onclick="updateOne()">Configuration 3</option>
+                        <option value="1">Configuration 1</option>
+                        <option value="2">Configuration 2</option>
+                        <option value="3">Configuration 3</option>
                     </select>   
                     <button id="edit_config" name="edit config" value="0" type="button" onclick="updateConfig()">
-                        Edit Configuration
+                        Show Configuration Details
                     </button>
                     <div id="fill">
                     </div>
@@ -168,10 +172,11 @@
                 <input onclick="stopInterval();" value="Stop sim" type="button">
                 <input onclick="pauseInterval();" value="Pause sim" type="button">
                 <input onclick="resumeInterval();" value="Resume sim" type="button">
-                <input onclick="clearAll();" value="Clear sim" type="button">
+                <input onclick="clearAll();" value="Clear data" type="button">
+                <p id="user_info"></p>
             </form>
             <div id="canvas_container">
-                <canvas id="sketchpad" height="500" width="500">
+                <canvas id="sketchpad">
                 </canvas>
             </div>
 
@@ -182,10 +187,21 @@
  ******************************************************************************/            
             //socket location
             var webSocket = new WebSocket("ws://localhost:8080/WebSocket/endpoint");
+            //var webSocket = new WebSocket("ws://"+document.location.host+document.location.pathname+"endpoint");
+            
+            //server-sent event option
+            /*
+            var source = new EventSource("ws://localhost:8080/WebSocket/endpoint");
+            source.onMessage(function(event){
+                processMessage(event);
+            });
+            */
             
             //to manage animation
             var continueAnimation=1;
             var drawAllowed=true;
+            var isrunning=false;
+            var waitingOnInput=false;
          
             //reference to canvas and 2dcanvas context
             var canvas,ctx;
@@ -203,6 +219,11 @@
             var initSet;    //are the initial variables set
             var finSet;  //are all the drawing variables set
             var obstacleArray=[];   //store obstacle information as strings in order (with circle or square)
+            
+            //to assist user
+            var user_information="";
+            var isstopped=true;
+            var hasdata=false;
 
 /*******************************************************************************
  *input control methods
@@ -324,6 +345,10 @@
                 } 
             }
 
+            function update_user_info()
+            {
+                document.getElementById("user_info").innerHTML=user_information;
+            }
 /*******************************************************************************
  * server control methods
  ******************************************************************************/
@@ -338,149 +363,179 @@
             webSocket.onerror = function(){processError();};
 
             //what to do when the socket is opened
-            function processOpen()
-            {
-                //tell the user about the connection starting
-                //messagesTextArea.value += "Connected to Server.\n";
-            }
+            function processOpen(){}
 
             //what to do when a message is sent
             function sendMessage()
             {  
-                clearCanvas(canvas,ctx);
-                var button_value=document.getElementById("edit_config").value;
-                var configuration_value=document.getElementById("configuration").value;
-                var num_positions=num_position_markers.value;
-                var num_frames=frames_per_second.value; //not to pass to server
-                //pass dimensions of canvas
-                var max_x = document.getElementById("sketchpad").getAttribute("width");
-                var max_y = document.getElementById("sketchpad").getAttribute("height");
-
-                //set order of variables to configuration, number of objects, maximum x, maximum y, configuration variables
-                var value_array = [configuration_value,num_positions,max_x,max_y];
-
-                //if the defaults have not been changed
-                switch(button_value)
+                if(!isrunning && isstopped)  //to stop speedup/reset by repeated clicking
                 {
-                    case "0": //has not been pressed.  all are default
-                    case "1": //was pressed for 1.  nothing changes.
-                        //get which configuration 
-                        //set default values for that configuration (half of max value)
-                        //push to array
-                        switch(configuration_value) 
-                        {
-                            case "1":
-                                //nothing.  use num_position and num_frames only
-                                break;
-                            case "2":
-                                value_array.push(30); //width of the circle
-                                break;
-                            case "3":
-                                value_array.push(30); //amplitude of the sin wave
-                                value_array.push(30); //frequency of the sin wave
-                                break;
-                        }
-                        break;
-                    case "2": //was pressed for 2.
-                        //get which configuration
-                        //get the values from the user altered html
-                        //push to array
-                        switch(configuration_value) 
-                        {
-                            case "1":
-                                //nothing.  use num_position and num_frames only
-                                break;
-                            case "2":
-                                value_array.push(document.getElementById("width_of_circle").value);
-                                break;
-                            case "3":
-                                value_array.push(30); //amplitude of the sin wave
-                                value_array.push(30); //frequency of the sin wave
-                                break;
-                        }
-                        break;
-                    case "3": //was pressed for 3.
-                        //get which configuration
-                        //get the values from the user altered html
-                        //push to array
-                        switch(configuration_value) 
-                        {
-                            case "1":
-                                //nothing.  use num_position and num_frames only
-                                break;
-                            case "2":
-                                value_array.push(30); //width of the circle
-                                break;
-                            case "3":
-                                value_array.push(document.getElementById("amplitude_of_sin_wave").value);
-                                value_array.push(document.getElementById("frequency_of_sin_wave").value);
-                                break;
-                        }
-                        break;
-                }
-                
-                var index;
-                
-                //add whatever obstacles exist
-                for (index = 0; index < obstacleArray.length; index++) {
-                    value_array.push(obstacleArray[index]);
-                }
-                
-                //send variables to the server
-                var stringToServer = "";
-                for (index = 0; index < value_array.length; index++) {
-                    stringToServer += value_array[index]+" ";
-                }
+                    user_information="";
+                    update_user_info();
+                    
+                    isrunning=true;
+                    isstopped=false;
+                    waitingOnInput=true;
+                    user_information="Generating simulation....";
+                    update_user_info(); 
+                    
+                    //clearCanvas(canvas,ctx);
+                    var button_value=document.getElementById("edit_config").value;
+                    var configuration_value=document.getElementById("configuration").value;
+                    var num_positions=num_position_markers.value;
+                    var num_frames=frames_per_second.value; //not to pass to server
+                    //pass dimensions of canvas
+                    var max_x = document.getElementById("sketchpad").getAttribute("width");
+                    var max_y = document.getElementById("sketchpad").getAttribute("height");
 
-                webSocket.send(stringToServer);
+                    //set order of variables to configuration, number of objects, maximum x, maximum y, configuration variables
+                    var value_array = [configuration_value,num_positions,max_x,max_y,num_frames];
 
-                //loop and continue pinging server
-                var loop = window.setInterval(function () {
-                    if(continueAnimation===1)
+                    //if the defaults have not been changed
+                    switch(button_value)
                     {
-                        clearCanvas(canvas,ctx);
-                        //ping server for update every timestamp
-                        webSocket.send(1);
+                        case "0": //has not been pressed.  all are default
+                        case "1": //was pressed for 1.  nothing changes.
+                            //get which configuration 
+                            //set default values for that configuration (half of max value)
+                            //push to array
+                            switch(configuration_value) 
+                            {
+                                case "1":
+                                    //nothing.  use num_position and num_frames only
+                                    break;
+                                case "2":
+                                    value_array.push(30); //width of the circle
+                                    break;
+                                case "3":
+                                    value_array.push(30); //amplitude of the sin wave
+                                    value_array.push(30); //frequency of the sin wave
+                                    break;
+                            }
+                            break;
+                        case "2": //was pressed for 2.
+                            //get which configuration
+                            //get the values from the user altered html
+                            //push to array
+                            switch(configuration_value) 
+                            {
+                                case "1":
+                                    //nothing.  use num_position and num_frames only
+                                    break;
+                                case "2":
+                                    value_array.push(document.getElementById("width_of_circle").value);
+                                    break;
+                                case "3":
+                                    value_array.push(30); //amplitude of the sin wave
+                                    value_array.push(30); //frequency of the sin wave
+                                    break;
+                            }
+                            break;
+                        case "3": //was pressed for 3.
+                            //get which configuration
+                            //get the values from the user altered html
+                            //push to array
+                            switch(configuration_value) 
+                            {
+                                case "1":
+                                    //nothing.  use num_position and num_frames only
+                                    break;
+                                case "2":
+                                    value_array.push(30); //width of the circle
+                                    break;
+                                case "3":
+                                    value_array.push(document.getElementById("amplitude_of_sin_wave").value);
+                                    value_array.push(document.getElementById("frequency_of_sin_wave").value);
+                                    break;
+                            }
+                            break;
                     }
-                    else if(continueAnimation===0)
-                    {
-                        clearInterval(loop);
+
+                    var index;
+
+                    //add whatever obstacles exist
+                    for (index = 0; index < obstacleArray.length; index++) {
+                        value_array.push(obstacleArray[index]);
                     }
-                    else
-                    {
-                        clearInterval(loop);
-                        clearCanvas(canvas,ctx);
+
+                    //send variables to the server
+                    var stringToServer = "";
+                    for (index = 0; index < value_array.length; index++) {
+                        stringToServer += value_array[index]+" ";
                     }
-                }, 1000/num_frames);
-                continueAnimation=1;
-                drawAllowed=true;
+
+                    webSocket.send(stringToServer);
+                    
+                    //loop and continue pinging server
+                    /*
+                    var loop = window.setInterval(function () {
+                        if(continueAnimation===1)
+                        {
+                            //ping server for update every timestamp
+                            webSocket.send(1);
+                            clearCanvas(canvas,ctx);
+                        }
+                        else if(continueAnimation===0)
+                        {
+                            clearInterval(loop);
+                        }
+                        else
+                        {
+                            clearInterval(loop);
+                            clearCanvas(canvas,ctx);
+                        }
+                    }, 1000/num_frames);
+                    */
+                    continueAnimation=1;
+                    drawAllowed=true;
+                }
+                else
+                {
+                    user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
+                    update_user_info();
+                }
             }
 
             //what to do is the connection to the server is closed
             function processClose()
             {
-                //tell the user about the disconnect in case something happens to server
-                //messagesTextArea.value += "Disconnecting from Server...\n";
+                user_information="The connection has been closed.  Reload the page to continue.";
+                update_user_info();
             }
 
             //what to do if there's an error
             function processError()
             {
-                //messagesTextArea.value += "error..."+"\n";
+                user_information="An error has occured.  Reload the page to continue.";
+                update_user_info();
             }
 
             //what to do if a message is received
             function processMessage(message)
-            {
+            {  
+                clearCanvas(canvas,ctx);
+                
                 var stringForJSON=""+message.data;
+                
+                if(waitingOnInput)
+                {
+                    waitingOnInput=false;
+                    user_information="";
+                    update_user_info();
+                }
+                
                 if(stringForJSON==="0")
                 {
                     //if server is finished generating data, stop
                     stopInterval();
+                    user_information="Simulation has finished.";
+                    update_user_info();
                 }
                 else
                 {
                     var arr = JSON.parse(stringForJSON);
+                    
+                    previous_dot_array=arr;
                     var i;
 
                     //for each in the input, get x and y values
@@ -495,7 +550,7 @@
                     redrawShapes();
                 }
             }
-
+            
 /*******************************************************************************
  * animation control methods
  ******************************************************************************/
@@ -503,44 +558,108 @@
             //way to pause the animation
             function pauseInterval()
             {
-                drawAllowed=false;
-                continueAnimation=0;
-                webSocket.send(0);
+                if(!isrunning)
+                {
+                    user_information="There is no simulation currently running.";
+                    update_user_info();   
+                }
+                else
+                {
+                    isrunning=false;
+                    drawAllowed=false;
+                    /*
+                    continueAnimation=0;
+                    */
+                    webSocket.send("pause");
+                }
             }
             
             //way to resume the animation
             function resumeInterval()
             {
-                var num_frames=frames_per_second.value;
-                var loop = window.setInterval(function () {
-                    if(continueAnimation===1)
-                    {
-                        clearCanvas(canvas,ctx);
-                        //ping server for update every timestamp
-                        webSocket.send(1);
-                    }
-                    else if(continueAnimation===0)
-                    {
-                        clearInterval(loop);
-                    }
-                    else
-                    {
-                        clearInterval(loop);
-                        clearCanvas(canvas,ctx);
-                    }
-                }, 1000/num_frames);
-                continueAnimation=1;
-                drawAllowed=true;
+                if(!isrunning)  //to avoid speedup by repeated clicking
+                {
+                    user_information="";
+                    update_user_info();
+                    
+                    isrunning=true;
+                    isstopped=false;
+                    /*
+                    var num_frames=frames_per_second.value;
+                    var loop = window.setInterval(function () {
+                        if(continueAnimation===1)
+                        {
+                            clearCanvas(canvas,ctx);
+                            //ping server for update every timestamp
+                            webSocket.send(1);
+                        }
+                        else if(continueAnimation===0)
+                        {
+                            clearInterval(loop);
+                        }
+                        else
+                        {
+                            clearInterval(loop);
+                            clearCanvas(canvas,ctx);
+                        }
+                    }, 1000/num_frames);
+                    */
+                    continueAnimation=1;
+                    drawAllowed=true;
+                    
+                    webSocket.send("resume");
+                }
+                else if(isstopped)
+                {
+                    user_information="To start a simulation, press 'start sim'.";
+                    update_user_info();
+                }
+                else
+                {
+                    user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
+                    update_user_info();
+                }
             }
 
             //way to stop the animation
             function stopInterval()
             {
-                drawAllowed=false;
-                continueAnimation=false;
-                webSocket.send(-1);
+                if(isstopped)
+                {
+                    user_information="There is no simulation currently running.";
+                    update_user_info();
+                }
+                else
+                {
+                    isrunning=false;
+                    isstopped=true;
+                    drawAllowed=false;
+                    continueAnimation=false;
+                    webSocket.send("stop");
+                    clearCanvas(canvas,ctx);
+                    user_information="";
+                    update_user_info();
+                    redrawShapes();
+                }
             }
            
+            function clearAll()
+            {
+                if(isrunning || hasdata)
+                {
+                    stopInterval();
+                    obstacleArray=[];
+                    clearCanvas(canvas,ctx);
+                    user_information="Simulation and obstacle data has been cleared.";
+                    update_user_info();
+                }
+                else
+                {
+                    user_information="There is no simulation or obstacle data to clear.";
+                    update_user_info();
+                }
+            }
+            
 /*******************************************************************************
  * basic canvas methods
  ******************************************************************************/
@@ -620,8 +739,45 @@
                 }
             }*/
                                                                 
+            function drawTempShape(initX,initY,mouseX,mouseY)
+            {
+                if(shape_obstacles.value==="1")
+                {
+                    //parse to int.  happens on the canvas anyway.
+                    var radius=parseInt(Math.sqrt(Math.pow((mouseX-initX),2)+Math.pow((mouseY-initY),2)));
+                    lastradius=radius;
+                    if(color_obstacles.value==="1")
+                    {
+                        ctx.fillstyle="black";
+                    }
+                    else
+                    {
+                        ctx.fillStyle="red";
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(initX,initY,radius,0,2 * Math.PI);
+                    ctx.stroke();
+                    ctx.fill();
+                }
+                else
+                {
+                    if(color_obstacles.value==="1")
+                    {
+                        ctx.fillStyle="black";
+                    }
+                    else
+                    {
+                        ctx.fillStyle="red";
+                    }
+                    ctx.fillRect(initX,initY,mouseX-initX,mouseY-initY);
+                }
+            }
+            
             function drawShape(initX,initY,finX,finY)
             {
+                hasdata=true; 
+                
                 if(shape_obstacles.value==="1")
                 {
                     //parse to int.  happens on the canvas anyway.
@@ -702,12 +858,7 @@
                     }
                 }
             }
-            
-            function clearAll()
-            {
-                obstacleArray=[];
-                clearCanvas(canvas,ctx);
-            }
+           
             function clearCanvas(canvas,ctx) 
             {    
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -718,6 +869,8 @@
                 //get the canvas from the HTML document
                 canvas = document.getElementById('sketchpad');
 
+                updateCanvas();
+                
                 //if the browser supports the canvas, get the context
                 if (canvas.getContext)
                     ctx = canvas.getContext('2d');
@@ -758,7 +911,10 @@
             //don't do anything if mouse is not on the canvas
             function sketchpad_mouseOut(e)
             {
-                if(mouseDown===0){ return; }
+                if(mouseDown===0)
+                { 
+                    return; 
+                }
                 e.preventDefault();
                 e.stopPropagation();
                 mouseDown=0;
@@ -775,6 +931,12 @@
                     drawShape(initX,initY,finX,finY);
                     initSet=false;
                     finSet=false;
+                }
+                else if (initSet)
+                {
+                    clearCanvas(canvas,ctx);
+                    redrawShapes();
+                    drawTempShape(initX,initY,mouseX,mouseY);
                 }
             }
 
