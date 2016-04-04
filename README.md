@@ -1,5 +1,6 @@
 # Web-Socket-Animated-HTML5-Canvas
 
+Motivation:
 Made for use by GSU as part of Master's project.  Intentionally made more interesting by use of sockets and infinite data generation instead of a request to the server and a set amount of data.
 
 Aim:
