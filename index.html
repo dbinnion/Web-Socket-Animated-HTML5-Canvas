@@ -8,6 +8,22 @@
             {
                 text-align: center;
             }
+            header, nav, section, article, footer
+            {
+                border:1px solid grey; margin:5px; padding:8px;
+            }
+            #obstacleDrawEnableStatus, #headingDrawEnableStatus{
+                border:1px solid grey;
+            }
+            nav ul, article ul
+            {
+                margin:0; padding:0;
+            }
+            nav ul li, article ul li
+            {
+                display:inline; margin:5px;
+            }
+            
             #sketchpad 
             {
                 float:none;
@@ -15,100 +31,331 @@
                 border-radius:4px;
                 position:relative; /* Necessary for correct mouse co-ords in Firefox */
             }
+            
+            /* The Modal (background) */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                padding-top: 100px; /* Location of the box */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+            /* Modal Content */
+            .modal-content {
+                position: relative;
+                background-color: #fefefe;
+                margin: auto;
+                padding: 0;
+                border: 1px solid #888;
+                width: 50%;
+                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+                -webkit-animation-name: animatetop;
+                -webkit-animation-duration: 0.4s;
+                animation-name: animatetop;
+                animation-duration: 0.4s
+            }
+            
+            /* Add Animation */
+            @-webkit-keyframes animatetop {
+                from {top:-300px; opacity:0} 
+                to {top:0; opacity:1}
+            }
+            @keyframes animatetop {
+                from {top:-300px; opacity:0}
+                to {top:0; opacity:1}
+            }
+            
+            /* The Close Button */
+            .close {
+                color: white;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+            .close:hover,
+            .close:focus {
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+            }
+            .modal-header {
+                padding: 2px 16px;
+                background-color: #010FD2;
+                color: white;
+            }
+            .modal-body {
+                padding: 16px 16px;
+                color: black!important;
+            }
+            .modal-footer {
+                padding: 2px 16px;
+                background-color: #010FD2;
+                color: white;
+            }
         </style>
         <title>Web Socket</title>
     </head>
     <body onload="init()">
-            <form>
-                <div>Width of Canvas:
-                    <select id="canvas_width" name="canvas width">
-                        <option value="250">250</option>
-                        <option value="300">300</option>
-                        <option value="350">350</option>
-                        <option selected value="400">400</option>
-                        <option value="450">450</option>
-                        <option value="500">500</option>
-                        <option value="550">550</option>
-                        <option value="600">600</option>
-                        <option value="650">650</option>
-                        <option value="700">700</option>
-                        <option value="750">750</option>
-                        <option value="800">800</option>
-                        <option value="850">850</option>
-                        <option value="900">900</option>
-                        <option value="950">950</option>
-                        <option value="1000">1000</option>
-                    </select>    
-                    Height of Canvas:
-                    <select id="canvas_height" name="canvas height">
-                        <option value="250">250</option>
-                        <option value="300">300</option>
-                        <option value="350">350</option>
-                        <option selected value="400">400</option>
-                        <option value="450">450</option>
-                        <option value="500">500</option>
-                        <option value="550">550</option>
-                        <option value="600">600</option>
-                        <option value="650">650</option>
-                        <option value="700">700</option>
-                        <option value="750">750</option>
-                        <option value="800">800</option>
-                        <option value="850">850</option>
-                        <option value="900">900</option>
-                        <option value="950">950</option>
-                        <option value="1000">1000</option>
-                    </select> 
-                    <button id="edit_dimensions" name="edit dimensions" value="0" type="button" onclick="updateCanvas()">
-                            Edit Dimensions
-                    </button>
+        <header>
+            <h1>
+                Agent Flocking with Obstacles
+            </h1>
+        </header>
+        <div id="windowAndCanvasModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="windowandcanvasmodalclose" class="close">×</span>
+                    <h2>Window and Canvas Options</h2>
+                </div>       
+                <div class="modal-body">
+                    <section>
+                        <h2>Window:</h2>
+                        <article>
+                            <ul>
+                                <li>
+                                    Color of Window Background:
+                                </li>
+                                <li>
+                                    <select id="window_background_color" name="window background color">
+                                        <option value="1">White</option>
+                                        <option value="2">Black</option>
+                                    </select>
+                                </li>
+                            </ul>
+                        </article>
+                    </section>
+                    <section>
+                        <h2>Canvas:</h2>
+                        <article>
+                            <ul>
+                                <li>
+                                    Width of Canvas:
+                                </li>
+                                <li>
+                                    <select id="canvas_width" name="canvas width">
+                                        <option value="250">250</option>
+                                        <option value="300">300</option>
+                                        <option value="350">350</option>
+                                        <option selected value="400">400</option>
+                                        <option value="450">450</option>
+                                        <option value="500">500</option>
+                                        <option value="550">550</option>
+                                        <option value="600">600</option>
+                                        <option value="650">650</option>
+                                        <option value="700">700</option>
+                                        <option value="750">750</option>
+                                        <option value="800">800</option>
+                                        <option value="850">850</option>
+                                        <option value="900">900</option>
+                                        <option value="950">950</option>
+                                        <option value="1000">1000</option>
+                                    </select> 
+                                </li>
+                                <li>
+                                    Height of Canvas:
+                                </li>
+                                <li>
+                                    <select id="canvas_height" name="canvas height">
+                                        <option value="250">250</option>
+                                        <option value="300">300</option>
+                                        <option value="350">350</option>
+                                        <option selected value="400">400</option>
+                                        <option value="450">450</option>
+                                        <option value="500">500</option>
+                                        <option value="550">550</option>
+                                        <option value="600">600</option>
+                                        <option value="650">650</option>
+                                        <option value="700">700</option>
+                                        <option value="750">750</option>
+                                        <option value="800">800</option>
+                                        <option value="850">850</option>
+                                        <option value="900">900</option>
+                                        <option value="950">950</option>
+                                        <option value="1000">1000</option>
+                                    </select>
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <ul>
+                                <li>
+                                    Color of Canvas Background:
+                                </li>
+                                <li>
+                                    <select id="canvas_background_color" name="canvas background color">
+                                        <option value="1">White</option>
+                                        <option value="2">Gray</option>
+                                        <option value="3">Blue</option>
+                                    </select>
+                                </li>
+                            </ul>
+                        </article>
+                    </section>
                 </div>
-                <br>
-                <div>
-                    Color of Canvas Background:
-                    <select id="canvas_background_color" name="canvas background color">
-                        <option value="1">White</option>
-                        <option value="2">Gray</option>
-                        <option value="3">Green</option>
-                    </select>
-                    Color of Window Background:
-                    <select id="window_background_color" name="window background color">
-                        <option value="1">White</option>
-                        <option value="2">Black</option>
-                    </select>
-                    <button id="edit_colors" name="edit colors" value="0" type="button" onclick="updateBackground()">
-                            Edit Backgrounds
-                    </button>
+                <div class="modal-footer">
+                    <h2>Click the "x" or outside this box to close.</h2>
                 </div>
-                <br>
-                <div>
-                    Number of position markers:
-                    <!-- input the number of positions to make -->
-                    <select id="num_position_markers" name="number of elements">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="40">40</option>
-                        <option selected value="50">50</option>
-                        <option value="60">60</option>
-                        <option value="70">70</option>
-                        <option value="80">80</option>
-                        <option value="90">90</option>
-                        <option value="100">100</option>
-                        <!-- option values removed due to data being generated before display
-                        <option value="200">200</option>
-                        <option value="300">300</option>
-                        <option value="400">400</option>
-                        <option value="500">500</option>
-                        <option value="600">600</option>
-                        <option value="700">700</option>
-                        <option value="800">800</option>
-                        <option value="900">900</option>
-                        <option value="1000">1000</option>
-                        -->
-                    </select>    
-                    Number of moves per second:
-                    <!-- input the number of frames per second -->
-                    <select id="frames_per_second" name="number of elements">
+            </div>
+        </div>
+        <div id="obstacleAndAgentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="obstacleandagentmodalclose" class="close">×</span>
+                    <h2>Obstacle and Agent Options</h2>
+                </div>       
+                <div class="modal-body">
+                    <section>
+                        <h2>Obstacles:</h2>
+                        <article>
+                            <ul>
+                                <li>
+                                    Obstacle Drawing is Currently: 
+                                </li>
+                                <li id="obstacleDrawEnableStatus">
+                                    Enabled
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <ul>
+                                <li>
+                                    Color of Obstacles:
+                                </li>
+                                <li>
+                                    <select id="color_obstacles" name="number of elements">
+                                        <option value="1">Black</option>
+                                        <option value="2">Red</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    Shape of Obstacle to Draw:
+                                </li>
+                                <li>
+                                    <select id="shape_obstacles" name="number of elements">
+                                        <option value="1">Circle</option>
+                                        <option value="2">Rectangle</option>
+                                    </select>
+                                </li>
+                            </ul>        
+                        </article>
+                        <article>
+                            <ul>
+                                <li>
+                                    <input id="setObstacleDraw" onclick="drawObstacleAbility();" value="Disable Draw Obstacles" type="button">
+                                </li>
+                            </ul>
+                        </article>
+                    </section>
+                    <br>
+                    <section>
+                        <h2>Agents:</h2>
+                        <article>
+                            <ul>
+                                <li>
+                                    Heading Drawing is Currently: 
+                                </li>
+                                <li id="headingDrawEnableStatus">
+                                    Enabled
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <ul>
+                                <li>
+                                    Color of Agents:
+                                </li>
+                                <li>
+                                    <select id="color_position_markers" name="number of elements">
+                                        <option value="1">Black</option>
+                                        <option value="2">Red</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    Shape of Agents:
+                                </li>
+                                <li>
+                                    <select id="shape_position_markers" name="number of elements">
+                                        <option value="1">Circle</option>
+                                        <option value="2">Rectangle</option>
+                                    </select>
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <ul>
+                                <li>
+                                    <input id="setHeadingDraw" onclick="drawHeadingAbility();" value="Disable Draw Heading" type="button">
+                                </li>
+                                <li>
+                                    <input id="generateRandomAgents" onclick="generateRandomAgents();" value="Generate Random Agents" type="button">   
+                                </li>
+                            </ul>
+                        </article>
+                    </section>
+                </div>
+                <div class="modal-footer">
+                    <h2>Click the "x" or outside this box to close.</h2>
+                </div>
+            </div>
+        </div>
+        <div id="configurationModalOne" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="configurationcloseOne" class="close">×</span>
+                    <h2>Configuration Options</h2>
+                </div>       
+                <div class="modal-body">
+                    <div>
+                        Distance between the agents:
+                        <br>
+                        <select id="distance_between_agents" name="distance between agents">
+                        <option value="1">Closer</option>
+                        <option selected value="2">Farther</option>
+                        <!--<option value="3">Farther</option>-->
+                    </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <h2>Click the "x" or outside this box to close.</h2>
+                </div>
+            </div>
+        </div>
+        <div id="configurationModalTwo" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="configurationcloseTwo" class="close">×</span>
+                    <h2>Configuration Options</h2>
+                </div>       
+                <div class="modal-body">
+                    Width of the Circle: 
+                    <br>
+                    <select id="radius_of_circle" name="radius of circle">
+                        <option value="1">Smaller</option>
+                        <option selected value="2">Larger</option>
+                        <!--<option value="3">Larger</option>-->
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <h2>Click the "x" or outside this box to close.</h2>
+                </div>
+            </div>
+        </div>
+        <!--<div id="configurationModalThree" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="configurationcloseThree" class="close">×</span>
+                    <h2>Configuration Options</h2>
+                </div>       
+                <div class="modal-body">
+                    Amplitude of the Sin Wave: 
+                    <br>
+                    <select id="amplitude_of_sin_wave" name="amplitude of sin wave">
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -121,87 +368,144 @@
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option selected value="30">30</option>
-                        <!--
                         <option value="40">40</option>
                         <option value="50">50</option>
-                        -->
                         <option value="60">60</option>
-                    </select>     
-                </div>
-                <br>
-                <div>
-                    Color of Position Markers:
-                    <select id="color_position_markers" name="number of elements">
-                        <option value="1">Black</option>
-                        <option value="2">Red</option>
-                    </select>    
-                    Shape of Position Markers:
-                    <select id="shape_position_markers" name="number of elements">
-                        <option value="1">Circle</option>
-                        <option value="2">Rectangle</option>
+                    </select>
+                    <br>
+                    <br>
+                    Frequency of the Sin Wave: 
+                    <br>
+                    <select id="frequency_of_sin_wave" name="frequency of sin wave">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option selected value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                        <option value="60">60</option>
                     </select>
                 </div>
-                <br>
-                <div>
-                    Color of Obstacles:
-                    <select id="color_obstacles" name="number of elements">
-                        <option value="1">Black</option>
-                        <option value="2">Red</option>
-                    </select>    
-                    Shape of Obstacle to Draw:
-                    <select id="shape_obstacles" name="number of elements">
-                        <option value="1">Circle</option>
-                        <option value="2">Rectangle</option>
-                    </select>
+                <div class="modal-footer">
+                    <h2>Click the "x" or outside this box to close.</h2>
                 </div>
-                <br>
-                <div>Configuration:
-                    <select id="configuration" name="configuration">
-                        <option value="1">Configuration 1</option>
-                        <option value="2">Configuration 2</option>
-                        <option value="3">Configuration 3</option>
-                    </select>   
-                    <button id="edit_config" name="edit config" value="0" type="button" onclick="updateConfig()">
-                        Show Configuration Details
-                    </button>
-                    <div id="fill">
-                    </div>
-                </div>
-                <br>
-                <input onclick="sendMessage();" value="Start sim" type="button">
-                <input onclick="stopInterval();" value="Stop sim" type="button">
-                <input onclick="pauseInterval();" value="Pause sim" type="button">
-                <input onclick="resumeInterval();" value="Resume sim" type="button">
-                <input onclick="clearAll();" value="Clear data" type="button">
-                <p id="user_info"></p>
-            </form>
-            <div id="canvas_container">
-                <canvas id="sketchpad">
-                </canvas>
             </div>
-
+        </div>-->
+        <section>
+            <article>
+                <ul>
+                    <li>Number of Moving Agents:</li>
+                    <!-- input the number of positions to make -->
+                    <li><select id="num_position_markers" name="number of elements">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                    <option selected value="50">50</option>
+                    <option value="60">60</option>
+                    <option value="70">70</option>
+                    <option value="80">80</option>
+                    <option value="90">90</option>
+                    <option value="100">100</option>
+                    <!-- option values removed due to data being generated before display
+                    <option value="200">200</option>
+                    <option value="300">300</option>
+                    <option value="400">400</option>
+                    <option value="500">500</option>
+                    <option value="600">600</option>
+                    <option value="700">700</option>
+                    <option value="800">800</option>
+                    <option value="900">900</option>
+                    <option value="1000">1000</option>
+                    -->
+                        </select></li>    
+                    <li>Number of Moves Per Second:</li>
+                    <!-- input the number of frames per second -->
+                    <li><select id="frames_per_second" name="number of elements">
+                    <option value="1">1</option>
+                    <!--<option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>-->
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option selected value="30">30</option>
+                    <!--
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                    -->
+                    <option value="60">60</option>
+                        </select></li>     
+                </ul>
+            </article>
+            <article>
+                <ul>
+                    <li><input onclick="appearanceSettings();" value="View/Edit Aesthetic Options" type="button"></li>
+                    <li><input onclick="obstacleAndAgentSettings();" value="View/Edit Obstacle and Agent Options" type="button"></li>
+                </ul>
+                <br>
+                <ul>
+                    <li>Configuration:</li>
+                    <li>
+                        <select id="configuration" name="configuration">
+                            <option value="1">Line</option>
+                            <option value="2">Circle</option>
+                            <!--<option value="3">Configuration 3</option>-->
+                        </select>
+                    </li>
+                    <li>
+                        <button id="edit_config" name="edit config" value="0" type="button" onclick="updateConfig()">
+                            View/Edit Configuration Details
+                        </button>
+                    </li>
+                </ul>
+            </article>
+        </section>
+        <nav>
+            <ul>
+                <li><input onclick="sendMessage();" value="Start new sim" type="button"></li>
+                <li><input onclick="stopInterval();" value="Stop sim" type="button"></li>
+                <li><input onclick="pauseInterval();" value="Pause sim" type="button"></li>
+                <li><input onclick="resumeInterval();" value="Resume sim" type="button"></li>
+                <li><input onclick="clearAll();" value="Clear data" type="button"></li>
+            </ul>
+        </nav>
+        <p id="user_info"></p>
+        <div id="canvas_container">
+            <canvas id="sketchpad">
+            </canvas>
+        </div>
         <br>
+        <footer>
+            <p>Made by David Binnion for use by the Georgia State University's Computer Science Department.</p>
+        </footer>
         <script type="text/javascript">
 /*******************************************************************************
  *variables
  ******************************************************************************/            
+
             //socket location
             var webSocket = new WebSocket("ws://localhost:8080/WebSocket/endpoint");
             //var webSocket = new WebSocket("ws://"+document.location.host+document.location.pathname+"endpoint");
-            
-            //server-sent event option
-            /*
-            var source = new EventSource("ws://localhost:8080/WebSocket/endpoint");
-            source.onMessage(function(event){
-                processMessage(event);
-            });
-            */
             
             //to manage animation
             var continueAnimation=1;
             var drawAllowed=true;
             var isrunning=false;
             var waitingOnInput=false;
+            var isstopped=true;
          
             //reference to canvas and 2dcanvas context
             var canvas,ctx;
@@ -212,22 +516,110 @@
             //to keep track of the touch position
             var touchX,touchY;
             
-            var initX;      //where user starts draw
-            var finX;        //where user ends draw
-            var initY;      //where user starts draw
-            var finY;        //where user ends draw
-            var initSet;    //are the initial variables set
-            var finSet;  //are all the drawing variables set
+            var obstacleSet;    //has the obstacle been added to the array
             var obstacleArray=[];   //store obstacle information as strings in order (with circle or square)
+            var agentArray = [];  //store random agent information as strings in order
             
-            //to assist user
-            var user_information="";
-            var isstopped=true;
-            var hasdata=false;
+            //for animation alteration
+            var canDrawObstacles = true; //whether onclick starts drawing obstacles or not
+            var canDrawHeading = true;  //whether or not the heading of each agent is drawn
+            var hasAgent=false;
+            var movingAgent;
+            var newObstacle;
+            var objectFailure=false;
+            
+/*******************************************************************************
+ * modal control methods (the popups)
+ ******************************************************************************/
+
+            //get the modal
+            var appearancemodal = document.getElementById('windowAndCanvasModal');
+            var obstacleandagentmodal = document.getElementById('obstacleAndAgentModal');
+            var configurationmodal1 = document.getElementById('configurationModalOne');
+            var configurationmodal2 = document.getElementById('configurationModalTwo');
+            //var configurationmodal3 = document.getElementById('configurationModalThree');
+
+            // Get the <span> element that closes the modal
+            var appearanceclose = document.getElementById("windowandcanvasmodalclose");
+            var obstacleandagentclose = document.getElementById("obstacleandagentmodalclose");
+            var configurationclose1 = document.getElementById("configurationcloseOne");
+            var configurationclose2 = document.getElementById("configurationcloseTwo");
+            //var configurationclose3 = document.getElementById("configurationcloseThree");
+            
+            // When the user clicks the button, open the modal 
+            function appearanceSettings() 
+            {
+                appearancemodal.style.display = "block";
+            }            
+            function obstacleAndAgentSettings() 
+            {
+                obstacleandagentmodal.style.display = "block";
+            }     
+            function configurationModelOne()
+            {
+                configurationmodal1.style.display = "block";
+            }
+            function configurationModelTwo()
+            {
+                configurationmodal2.style.display = "block";
+            }
+            /*function configurationModelThree()
+            {
+                configurationmodal3.style.display = "block";
+            }*/
+
+            // When the user clicks on <span> (x), close the modal
+            appearanceclose.onclick = function() {
+                aestheticClose();
+                appearancemodal.style.display = "none";
+            };
+            obstacleandagentclose.onclick = function() {
+                obstacleandagentmodal.style.display = "none";
+            };
+            configurationclose1.onclick = function() {
+                configurationmodal1.style.display = "none";
+            };
+            configurationclose2.onclick = function() {
+                configurationmodal2.style.display = "none";
+            };
+            /*configurationclose3.onclick = function() {
+                configurationmodal3.style.display = "none";
+            };*/
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                switch(event.target) 
+                {
+                    case appearancemodal:
+                        aestheticClose();
+                        appearancemodal.style.display = "none";
+                        break;
+                    case obstacleandagentmodal:
+                        obstacleandagentmodal.style.display = "none";
+                        break;
+                    case configurationmodal1:
+                        configurationmodal1.style.display = "none";
+                        break;
+                    case configurationmodal2:
+                        configurationmodal2.style.display = "none";
+                        break;
+                    /*case configurationmodal3:
+                        configurationmodal3.style.display = "none";
+                        break;*/
+                }
+            };
+            
+            function aestheticClose()
+            {
+                updateCanvas();
+                updateBackground();
+                clearAndRedraw();
+            }
 
 /*******************************************************************************
  *input control methods
  ******************************************************************************/
+ 
             function updateBackground()
             {
                 if(window_background_color.value==="1") //white
@@ -240,6 +632,7 @@
                     //change background color AND text color
                     document.body.style.background = "#000000";
                     document.body.style.color = "#ffffff";
+                    //document.getElementsByClassName('modal').style.color="#000000!important";
                 }
         
                 if(canvas_background_color.value==="1") //white
@@ -252,7 +645,7 @@
                 }
                 else    //light green
                 {
-                    document.getElementById("sketchpad").style.background="#00cc00";
+                    document.getElementById("sketchpad").style.background="#3333ff";
                 }
             }
         
@@ -271,84 +664,22 @@
                 switch(config) 
                 {
                     case "1":
-                        document.getElementById("edit_config").value="1";
-                        document.getElementById("fill").innerHTML="<br>\n\
-                        Basic Configuration.  Edit fields above.";
+                        configurationModelOne();
                         break;
                     case "2":
-                        document.getElementById("edit_config").value="2";
-                        document.getElementById("fill").innerHTML="<br>\n\
-                Width of the Circle: \n\
-                <br>\n\
-                <select id=\"width_of_circle\" name=\"width of circle\">\n\
-                    <option value=\"1\">1</option>\n\
-                    <option value=\"2\">2</option>\n\
-                    <option value=\"3\">3</option>\n\
-                    <option value=\"4\">4</option>\n\
-                    <option value=\"5\">5</option>\n\
-                    <option value=\"6\">6</option>\n\
-                    <option value=\"7\">7</option>\n\
-                    <option value=\"8\">8</option>\n\
-                    <option value=\"9\">9</option>\n\
-                    <option value=\"10\">10</option>\n\
-                    <option value=\"20\">20</option>\n\
-                    <option value=\"30\">30</option>\n\
-                    <option value=\"40\">40</option>\n\
-                    <option value=\"50\">50</option>\n\
-                    <option value=\"60\">60</option>\n\
-                </select>";
+                        configurationModelTwo();
                         break;
                     case "3":
-                        document.getElementById("edit_config").value="3";
-                        document.getElementById("fill").innerHTML="<br>\n\
-                Amplitude of the Sin Wave: \n\
-                <br>\n\
-                <select id=\"amplitude_of_sin_wave\" name=\"amplitude of sin wave\">\n\
-                    <option value=\"1\">1</option>\n\
-                    <option value=\"2\">2</option>\n\
-                    <option value=\"3\">3</option>\n\
-                    <option value=\"4\">4</option>\n\
-                    <option value=\"5\">5</option>\n\
-                    <option value=\"6\">6</option>\n\
-                    <option value=\"7\">7</option>\n\
-                    <option value=\"8\">8</option>\n\
-                    <option value=\"9\">9</option>\n\
-                    <option value=\"10\">10</option>\n\
-                    <option value=\"20\">20</option>\n\
-                    <option value=\"30\">30</option>\n\
-                    <option value=\"40\">40</option>\n\
-                    <option value=\"50\">50</option>\n\
-                    <option value=\"60\">60</option>\n\
-                </select>\n\
-                <br>\n\
-                <br>\n\
-                Frequency of the Sin Wave: \n\
-                <br>\n\
-                <select id=\"frequency_of_sin_wave\" name=\"frequency of sin wave\">\n\
-                    <option value=\"1\">1</option>\n\
-                    <option value=\"2\">2</option>\n\
-                    <option value=\"3\">3</option>\n\
-                    <option value=\"4\">4</option>\n\
-                    <option value=\"5\">5</option>\n\
-                    <option value=\"6\">6</option>\n\
-                    <option value=\"7\">7</option>\n\
-                    <option value=\"8\">8</option>\n\
-                    <option value=\"9\">9</option>\n\
-                    <option value=\"10\">10</option>\n\
-                    <option value=\"20\">20</option>\n\
-                    <option value=\"30\">30</option>\n\
-                    <option value=\"40\">40</option>\n\
-                    <option value=\"50\">50</option>\n\
-                    <option value=\"60\">60</option>\n\
-                </select>";
+                        configurationModelThree();
                         break;
                 } 
             }
 
-            function update_user_info()
+            function update_user_info(message)
             {
-                document.getElementById("user_info").innerHTML=user_information;
+                document.getElementById("user_info").innerHTML=message;
             }
+            
 /*******************************************************************************
  * server control methods
  ******************************************************************************/
@@ -370,17 +701,14 @@
             {  
                 if(!isrunning && isstopped)  //to stop speedup/reset by repeated clicking
                 {
-                    user_information="";
-                    update_user_info();
-                    
+                    update_user_info(""); 
                     isrunning=true;
                     isstopped=false;
+                    drawObstacleAbility();
                     waitingOnInput=true;
-                    user_information="Generating simulation....";
-                    update_user_info(); 
+                    //update_user_info("Generating simulation...."); 
                     
                     //clearCanvas(canvas,ctx);
-                    var button_value=document.getElementById("edit_config").value;
                     var configuration_value=document.getElementById("configuration").value;
                     var num_positions=num_position_markers.value;
                     var num_frames=frames_per_second.value; //not to pass to server
@@ -391,128 +719,59 @@
                     //set order of variables to configuration, number of objects, maximum x, maximum y, configuration variables
                     var value_array = [configuration_value,num_positions,max_x,max_y,num_frames];
 
-                    //if the defaults have not been changed
-                    switch(button_value)
+                    switch(configuration_value) 
                     {
-                        case "0": //has not been pressed.  all are default
-                        case "1": //was pressed for 1.  nothing changes.
-                            //get which configuration 
-                            //set default values for that configuration (half of max value)
-                            //push to array
-                            switch(configuration_value) 
-                            {
-                                case "1":
-                                    //nothing.  use num_position and num_frames only
-                                    break;
-                                case "2":
-                                    value_array.push(30); //width of the circle
-                                    break;
-                                case "3":
-                                    value_array.push(30); //amplitude of the sin wave
-                                    value_array.push(30); //frequency of the sin wave
-                                    break;
-                            }
+                        case "1":
+                            value_array.push(document.getElementById("distance_between_agents").value);
                             break;
-                        case "2": //was pressed for 2.
-                            //get which configuration
-                            //get the values from the user altered html
-                            //push to array
-                            switch(configuration_value) 
-                            {
-                                case "1":
-                                    //nothing.  use num_position and num_frames only
-                                    break;
-                                case "2":
-                                    value_array.push(document.getElementById("width_of_circle").value);
-                                    break;
-                                case "3":
-                                    value_array.push(30); //amplitude of the sin wave
-                                    value_array.push(30); //frequency of the sin wave
-                                    break;
-                            }
+                        case "2":
+                            value_array.push(document.getElementById("radius_of_circle").value);
                             break;
-                        case "3": //was pressed for 3.
-                            //get which configuration
-                            //get the values from the user altered html
-                            //push to array
-                            switch(configuration_value) 
-                            {
-                                case "1":
-                                    //nothing.  use num_position and num_frames only
-                                    break;
-                                case "2":
-                                    value_array.push(30); //width of the circle
-                                    break;
-                                case "3":
-                                    value_array.push(document.getElementById("amplitude_of_sin_wave").value);
-                                    value_array.push(document.getElementById("frequency_of_sin_wave").value);
-                                    break;
-                            }
-                            break;
+                        /*case "3":
+                            value_array.push(document.getElementById("amplitude_of_sin_wave").value);
+                            value_array.push(document.getElementById("frequency_of_sin_wave").value);
+                            break;*/
                     }
 
-                    var index;
-
-                    //add whatever obstacles exist
-                    for (index = 0; index < obstacleArray.length; index++) {
-                        value_array.push(obstacleArray[index]);
-                    }
-
+                    //add whatever obstacles and generated agents exist
+                    value_array.push(objectArrayToString());
+                    value_array.push(agentArrayToString());
                     //send variables to the server
                     var stringToServer = "";
-                    for (index = 0; index < value_array.length; index++) {
+                    for (var index = 0; index < value_array.length; index++) {
                         stringToServer += value_array[index]+" ";
                     }
 
                     webSocket.send(stringToServer);
                     
-                    //loop and continue pinging server
-                    /*
-                    var loop = window.setInterval(function () {
-                        if(continueAnimation===1)
-                        {
-                            //ping server for update every timestamp
-                            webSocket.send(1);
-                            clearCanvas(canvas,ctx);
-                        }
-                        else if(continueAnimation===0)
-                        {
-                            clearInterval(loop);
-                        }
-                        else
-                        {
-                            clearInterval(loop);
-                            clearCanvas(canvas,ctx);
-                        }
-                    }, 1000/num_frames);
-                    */
                     continueAnimation=1;
                     drawAllowed=true;
                 }
                 else
                 {
-                    user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
-                    update_user_info();
+                    //user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
+                    update_user_info("To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.");
                 }
             }
 
             //what to do is the connection to the server is closed
             function processClose()
             {
-                user_information="The connection has been closed.  Reload the page to continue.";
-                update_user_info();
+                //user_information="The connection has been closed.  Reload the page to continue.";
+                update_user_info("The connection has been closed.  Reload the page to continue.");
             }
 
             //what to do if there's an error
             function processError()
             {
-                user_information="An error has occured.  Reload the page to continue.";
-                update_user_info();
+                //user_information="An error has occured.  Reload the page to continue.";
+                update_user_info("An error has occured.  Reload the page to continue.");
             }
 
             //what to do if a message is received
             function processMessage(message)
             {  
+                agentArray=[];
                 clearCanvas(canvas,ctx);
                 
                 var stringForJSON=""+message.data;
@@ -520,35 +779,242 @@
                 if(waitingOnInput)
                 {
                     waitingOnInput=false;
-                    user_information="";
-                    update_user_info();
+                    //if obstacle drawing is not disabled, disable it
+                    if(canDrawObstacles)
+                        drawObstacleAbility();
+                    //update_user_info("");
                 }
                 
                 if(stringForJSON==="0")
                 {
                     //if server is finished generating data, stop
                     stopInterval();
-                    user_information="Simulation has finished.";
-                    update_user_info();
+                    //user_information="Simulation has finished.";
+                    update_user_info("Simulation has finished.");
                 }
                 else
                 {
-                    var arr = JSON.parse(stringForJSON);
+                    agentArray = JSON.parse(stringForJSON);
                     
-                    previous_dot_array=arr;
-                    var i;
-
                     //for each in the input, get x and y values
-                    for(i = 0; i < arr.length; i++) {
-                        //messagesTextArea.value += arr[i].x_value+","+arr[i].y_value+"\n";
+                    for(var i = 0; i < agentArray.length; i++) {
                         //draw on the canvas
                         if(drawAllowed)
                         {
-                            drawDot(ctx,arr[i].x_value,arr[i].y_value,3);
+                            drawDot(ctx,agentArray[i].x_value,agentArray[i].y_value,3);
+                            if(canDrawHeading)
+                                drawHeading(ctx,agentArray[i].x_value,agentArray[i].y_value,agentArray[i].heading);
                         }
                     }
-                    redrawShapes();
+                    redrawObstacles();
                 }
+            }
+            
+            function objectArrayToString()
+            {
+                var output="";
+                if(obstacleArray.length>0)
+                {
+                    for(var i=0;i<obstacleArray.length;i++)
+                    {
+                        if(obstacleArray[i].type==="Circle")
+                        {
+                            output+=obstacleArray[i].type+" "+obstacleArray[i].initX+" "+obstacleArray[i].initY+" "+obstacleArray[i].radius+" ";
+                        }
+                        else
+                        {
+                            output+=obstacleArray[i].type+" "+obstacleArray[i].initX+" "+obstacleArray[i].initY+" "+obstacleArray[i].finX+" "+obstacleArray[i].finX+" ";
+                        }
+                    }
+                }
+                return output;
+            }
+            
+            function agentArrayToString()
+            {
+                var output="";
+                if(agentArray.length>0)
+                {
+                    output+=" Agents ";
+                    for(var i=0;i<agentArray.length;i++)
+                    {
+                        output+=agentArray[i].x+" "+agentArray[i].y+" "+agentArray[i].heading+" ";
+                    }
+                }
+                return output;
+            }
+            
+/*******************************************************************************
+ * user-affected animation-alteration methods
+ ******************************************************************************/
+
+            function drawObstacleAbility()
+            {
+                if(!canDrawObstacles && isstopped)
+                {
+                    canDrawObstacles=true;
+                    document.getElementById("setObstacleDraw").value="Disable Draw Obstacles";
+                    document.getElementById("obstacleDrawEnableStatus").innerHTML="Enabled";
+                }
+                else
+                {
+                    canDrawObstacles=false;
+                    document.getElementById("setObstacleDraw").value="Enable Draw Obstacles";
+                    document.getElementById("obstacleDrawEnableStatus").innerHTML="Disabled";
+                }
+            }
+            
+            function drawHeadingAbility()
+            {
+                if(canDrawHeading)
+                {
+                    canDrawHeading=false;
+                    document.getElementById("setHeadingDraw").value="Enable Draw Heading"; 
+                    document.getElementById("headingDrawEnableStatus").innerHTML="Disabled";
+                }
+                else
+                {
+                    canDrawHeading=true;
+                    document.getElementById("setHeadingDraw").value="Disable Draw Heading";
+                    document.getElementById("headingDrawEnableStatus").innerHTML="Enabled";
+                }
+            }
+
+            function generateRandomAgents()
+            {
+                if(isstopped)
+                {
+                    if(canDrawObstacles)
+                        drawObstacleAbility();
+                    agentArray=[];
+
+                    //only generate positions within the size and 0 to 360 for heading
+                    var numAgents = document.getElementById("num_position_markers").value;
+                    var canvasWidth = document.getElementById("canvas_width").value;
+                    var canvasHeight = document.getElementById("canvas_height").value;
+
+                    for(var i=0;i<numAgents;i++)
+                    {
+                        var randomX = Math.floor((Math.random() * canvasWidth)+1);
+                        var randomY = Math.floor((Math.random() * canvasHeight)+1);
+                        var randomHeading = Math.floor((Math.random() * 360)+1);
+
+                        //if not against obstacle, push all to array in order to be ready to push to server
+                        if(notOnObstacle(randomX,randomY))
+                        {
+                            tempShape = {x:randomX, y:randomY, heading:randomHeading};
+                            agentArray.push(tempShape);
+                        }
+                        else
+                            i-=1;
+                    }
+                }
+                clearAndRedraw();
+            }
+            
+            function moveAgent(newX,newY)
+            {
+                if(notOnObstacle(newX,newY))   //if not clashing with obstacle, change position
+                {
+                    movingAgent.x = newX;
+                    movingAgent.y = newY;
+                }
+            }
+            
+            function notOnObstacle(x,y)
+            {
+                //for each obstacle in the obstacle array, check the x and y to see if it's in it.
+                for(var i=0; i< obstacleArray.length;i++)
+                {
+                    if(obstacleArray[i].type === "Circle")
+                    {
+                        var x_origin = obstacleArray[i].initX;
+                        var y_origin = obstacleArray[i].initY;
+                        var radius = obstacleArray[i].radius;
+                        
+                        var a_squared = Math.pow(x-x_origin,2);
+                        var b_squared = Math.pow(y-y_origin,2);
+                        var c = Math.sqrt(a_squared+b_squared);
+                        if(c<=radius)
+                        {
+                            return false;
+                        }
+                    }
+                    else    //not circle, must be square
+                    {
+                        var x_origin = obstacleArray[i].initX;
+                        var y_origin = obstacleArray[i].initY;
+                        var x_final = obstacleArray[i].finX;
+                        var y_final = obstacleArray[i].finY;
+
+                        if ((x_origin <= x) && (x <= x_final) && (y_origin <= y) && (y <= y_final)) 
+                        {
+                            return false;
+                        }
+                    }   
+                }
+                //nothing in the way, return true
+                return true;
+            }
+            
+            function notOnAgent(x,y)
+            {
+                //for each obstacle in the obstacle array, check the x and y to see if it's in it.
+                for(var i=0; i< agentArray.length;i++)
+                {
+                    var x_origin = agentArray[i].x;
+                    var y_origin = agentArray[i].y;
+                    var radius = 3;
+
+                    var a_squared = Math.pow(x-x_origin,2);
+                    var b_squared = Math.pow(y-y_origin,2);
+                    var c = Math.sqrt(a_squared+b_squared);
+                    if(c<=radius)
+                    {
+                        movingAgent=agentArray[i];
+                        return false;
+                    }
+                }
+                return true;
+            }
+            
+            function addObstacle(obstacle)
+            {
+                obstacleArray.push(obstacle);
+            }
+            
+            function allAgentsNotOnObstacle()
+            {
+                for(var i=0; i< agentArray.length;i++)
+                {
+                    var x = agentArray[i].x;
+                    var y = agentArray[i].y;
+                    //if an agent is on an obstacle, exit loop and return false
+                    if(newObstacle.type === "Circle")
+                    {
+                        var x_origin = newObstacle.initX;
+                        var y_origin = newObstacle.initY;
+                        var radius = newObstacle.radius;
+                        
+                        var a_squared = Math.pow(x-x_origin,2);
+                        var b_squared = Math.pow(y-y_origin,2);
+                        var c = Math.sqrt(a_squared+b_squared);
+                        
+                        if(c<=radius)
+                            return false;
+                    }
+                    else    //not circle, must be rectangle
+                    {
+                        var x_origin = newObstacle.initX;
+                        var y_origin = newObstacle.initY;
+                        var x_final = newObstacle.finX;
+                        var y_final = newObstacle.finY;
+
+                        if ((x_origin <= x) && (x <= x_final) && (y_origin <= y) && (y <= y_final)) 
+                            return false;
+                    }
+                }//otherwise return true
+                return true;
             }
             
 /*******************************************************************************
@@ -560,16 +1026,13 @@
             {
                 if(!isrunning)
                 {
-                    user_information="There is no simulation currently running.";
-                    update_user_info();   
+                    //user_information="There is no simulation currently running.";
+                    update_user_info("There is no simulation currently running.");   
                 }
                 else
                 {
                     isrunning=false;
                     drawAllowed=false;
-                    /*
-                    continueAnimation=0;
-                    */
                     webSocket.send("pause");
                 }
             }
@@ -579,31 +1042,12 @@
             {
                 if(!isrunning)  //to avoid speedup by repeated clicking
                 {
-                    user_information="";
-                    update_user_info();
+                    //user_information="";
+                    update_user_info("");
                     
                     isrunning=true;
                     isstopped=false;
-                    /*
-                    var num_frames=frames_per_second.value;
-                    var loop = window.setInterval(function () {
-                        if(continueAnimation===1)
-                        {
-                            clearCanvas(canvas,ctx);
-                            //ping server for update every timestamp
-                            webSocket.send(1);
-                        }
-                        else if(continueAnimation===0)
-                        {
-                            clearInterval(loop);
-                        }
-                        else
-                        {
-                            clearInterval(loop);
-                            clearCanvas(canvas,ctx);
-                        }
-                    }, 1000/num_frames);
-                    */
+                    drawObstacleAbility();
                     continueAnimation=1;
                     drawAllowed=true;
                     
@@ -611,13 +1055,13 @@
                 }
                 else if(isstopped)
                 {
-                    user_information="To start a simulation, press 'start sim'.";
-                    update_user_info();
+                    //user_information="To start a simulation, press 'start sim'.";
+                    update_user_info("To start a simulation, press 'start sim'.");
                 }
                 else
                 {
-                    user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
-                    update_user_info();
+                    //user_information="To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.";
+                    update_user_info("To update the canvas, press 'stop sim' then 'start sim', or 'pause sim' then 'resume sim'.");
                 }
             }
 
@@ -626,8 +1070,8 @@
             {
                 if(isstopped)
                 {
-                    user_information="There is no simulation currently running.";
-                    update_user_info();
+                    //user_information="There is no simulation currently running.";
+                    update_user_info("There is no simulation currently running.");
                 }
                 else
                 {
@@ -636,27 +1080,30 @@
                     drawAllowed=false;
                     continueAnimation=false;
                     webSocket.send("stop");
-                    clearCanvas(canvas,ctx);
-                    user_information="";
-                    update_user_info();
-                    redrawShapes();
+                    
+                    agentArray=[];
+                    clearAndRedraw();
+                    
+                    //user_information="";
+                    update_user_info("");
                 }
             }
            
             function clearAll()
             {
-                if(isrunning || hasdata)
+                if(isrunning || (obstacleArray.length>0) || (agentArray.length>0))
                 {
                     stopInterval();
                     obstacleArray=[];
+                    agentArray=[];
                     clearCanvas(canvas,ctx);
-                    user_information="Simulation and obstacle data has been cleared.";
-                    update_user_info();
+                    //user_information="Simulation and obstacle data has been cleared.";
+                    update_user_info("Simulation and obstacle data has been cleared.");
                 }
                 else
                 {
-                    user_information="There is no simulation or obstacle data to clear.";
-                    update_user_info();
+                    //user_information="There is no simulation or obstacle data to clear.";
+                    update_user_info("There is no simulation or obstacle data to clear.");
                 }
             }
             
@@ -694,19 +1141,16 @@
                 }
                 else    //square
                 {
-                    //draw a filled circle
+                    //draw a filled square
                     ctx.beginPath();
                     ctx.fillRect(x,y,size * 2,size * 2); 
                     ctx.closePath();
                 }
             }
-            
-            /*
-            //draw a dot at the coordinates
-            function drawUserDot(ctx,x,y,size) 
+        
+            function drawHeading(ctx,x,y,angle)
             {
-                var color_positions = color_obstacles.value;
-                var shape_positions = shape_obstacles.value;
+                var color_positions = color_position_markers.value;
 
                 if(color_positions==="1")  //black
                 {
@@ -721,67 +1165,27 @@
                 
                 //context fill style
                 ctx.fillStyle = "rgba("+r+","+g+","+b+","+(a/255)+")";
-
-                if(shape_positions==="1")  //circle
-                {
-                    //draw a filled circle
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI*2, true); 
-                    ctx.closePath();
-                    ctx.fill();
-                }
-                else    //square
-                {
-                    //draw a filled circle
-                    ctx.beginPath();
-                    ctx.fillRect(x,y,size * 2,size * 2); 
-                    ctx.closePath();
-                }
-            }*/
-                                                                
-            function drawTempShape(initX,initY,mouseX,mouseY)
-            {
-                if(shape_obstacles.value==="1")
-                {
-                    //parse to int.  happens on the canvas anyway.
-                    var radius=parseInt(Math.sqrt(Math.pow((mouseX-initX),2)+Math.pow((mouseY-initY),2)));
-                    lastradius=radius;
-                    if(color_obstacles.value==="1")
-                    {
-                        ctx.fillstyle="black";
-                    }
-                    else
-                    {
-                        ctx.fillStyle="red";
-                    }
-                    
-                    ctx.beginPath();
-                    ctx.arc(initX,initY,radius,0,2 * Math.PI);
-                    ctx.stroke();
-                    ctx.fill();
-                }
-                else
-                {
-                    if(color_obstacles.value==="1")
-                    {
-                        ctx.fillStyle="black";
-                    }
-                    else
-                    {
-                        ctx.fillStyle="red";
-                    }
-                    ctx.fillRect(initX,initY,mouseX-initX,mouseY-initY);
-                }
+                
+                ctx.beginPath();
+                ctx.moveTo(x,y);
+                
+                var sinAngle=Math.sin(toRadians(angle));
+                var cosAngle=Math.cos(toRadians(angle));
+                ctx.lineTo(x+(6*cosAngle),y+(-6*sinAngle));
+                ctx.stroke();
             }
             
-            function drawShape(initX,initY,finX,finY)
-            {
-                hasdata=true; 
-                
+            function toRadians (angle) {
+                return (Math.PI * angle / 180);
+            }
+
+            function drawObstacle(initX,initY,finX,finY)
+            {   
                 if(shape_obstacles.value==="1")
                 {
                     //parse to int.  happens on the canvas anyway.
                     var radius=parseInt(Math.sqrt(Math.pow((finX-initX),2)+Math.pow((finY-initY),2)));
+                    
                     if(color_obstacles.value==="1")
                     {
                         ctx.fillstyle="black";
@@ -795,10 +1199,7 @@
                     ctx.stroke();
                     ctx.fill();
                     
-                    obstacleArray.push("Circle");
-                    obstacleArray.push(initX);
-                    obstacleArray.push(initY);
-                    obstacleArray.push(radius);
+                    newObstacle = {type:"Circle", initX:initX, initY:initY, radius:radius};
                 }
                 else
                 {
@@ -812,21 +1213,15 @@
                     }
                     ctx.fillRect(initX,initY,finX-initX,finY-initY);
                     
-                    obstacleArray.push("Rectangle");
-                    obstacleArray.push(initX);
-                    obstacleArray.push(initY);
-                    obstacleArray.push(finX);
-                    obstacleArray.push(finY);
+                    newObstacle = {type:"Rectangle", initX:initX, initY:initY, finX:finX, finY:finY};
                 }
             }
             
-            function redrawShapes()
+            function redrawObstacles()
             {
-                var index;
-                
-                for(index=0;index<obstacleArray.length;index++)
+                for(var i=0;i<obstacleArray.length;i++)
                 {
-                    if(obstacleArray[index]==="Circle")
+                    if(obstacleArray[i].type==="Circle")
                     {
                         if(color_obstacles.value==="1")
                         {
@@ -837,12 +1232,11 @@
                             ctx.fillStyle="red";
                         }
                         ctx.beginPath();
-                        ctx.arc(obstacleArray[index+1],obstacleArray[index+2],obstacleArray[index+3],0,2 * Math.PI);
+                        ctx.arc(obstacleArray[i].initX,obstacleArray[i].initY,obstacleArray[i].radius,0,2 * Math.PI);
                         ctx.stroke();
                         ctx.fill();
-                        index=index+3;
                     }
-                    else if(obstacleArray[index]==="Rectangle")
+                    else if(obstacleArray[i].type==="Rectangle")
                     {
                         if(color_obstacles.value==="1")
                         {
@@ -852,13 +1246,23 @@
                         {
                             ctx.fillStyle="red";
                         }
-                        var width=obstacleArray[index+3]-obstacleArray[index+1];
-                        var height=obstacleArray[index+4]-obstacleArray[index+2];
-                        ctx.fillRect(obstacleArray[index+1],obstacleArray[index+2],width,height);
+                        var width=obstacleArray[i].finX-obstacleArray[i].initX;
+                        var height=obstacleArray[i].finY-obstacleArray[i].initY;
+                        ctx.fillRect(obstacleArray[i].initX,obstacleArray[i].initY,width,height);
                     }
                 }
             }
            
+            function redrawAgents()
+            {
+                for(var i=0;i<agentArray.length;i++)
+                {
+                    drawDot(ctx,agentArray[i].x,agentArray[i].y,3);
+                    if(canDrawHeading)
+                        drawHeading(ctx,agentArray[i].x,agentArray[i].y,agentArray[i].heading);
+                }
+            }
+            
             function clearCanvas(canvas,ctx) 
             {    
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -885,27 +1289,77 @@
                 }
             }
             
+            function clearAndRedraw()
+            {
+                clearCanvas(canvas,ctx);
+                redrawAgents();
+                redrawObstacles();
+            }
+            
 /*******************************************************************************
  * mouse methods
  ******************************************************************************/
             
             //draw a dot whenever the mouse button is pressed
             function sketchpad_mouseDown() 
-            {
+            {       
                 mouseDown=1;
-                //drawUserDot(ctx,mouseX,mouseY,3);
-                initX=mouseX;
-                initY=mouseY;
-                initSet=true;
+                
+                if(isstopped)
+                {
+                    if(!notOnAgent(mouseX,mouseY) && !canDrawObstacles)
+                    {
+                        hasAgent=true;
+                    }
+                    else if(canDrawObstacles)
+                    {
+                        if(notOnAgent(mouseX,mouseY))
+                        {
+                            obstacleSet=false;
+                            drawObstacle(mouseX,mouseY,mouseX,mouseY);
+                            objectFailure=false;
+                        }
+                        else
+                        {
+                            update_user_info("Do not draw obstacle over agent.");
+                            objectFailure=true;
+                        }
+                    }
+                    clearAndRedraw();
+                }
             }
 
             //change mouse variable whenever mouse button is released
             function sketchpad_mouseUp() 
             {
                 mouseDown=0;
-                finX=mouseX;
-                finY=mouseY;
-                finSet=true;
+
+                if(isstopped)
+                {
+                    if(hasAgent && notOnObstacle(mouseX,mouseY))
+                    {
+                        moveAgent(mouseX,mouseY);
+                        hasAgent=false;
+                    }
+                    else if(canDrawObstacles && !obstacleSet)
+                    {   
+                        if(allAgentsNotOnObstacle() && !objectFailure)
+                        {
+                            obstacleSet=true;
+                            drawObstacle(newObstacle.initX,newObstacle.initY,mouseX,mouseY);
+                            addObstacle(newObstacle);
+                            update_user_info("");
+                        }
+                        else
+                        {
+                            newObstacle=[];
+                            clearAndRedraw();
+                            update_user_info("Do not draw obstacle over agent.");
+                            objectFailure=true;
+                        }
+                    }
+                    clearAndRedraw();
+                }
             }
 
             //don't do anything if mouse is not on the canvas
@@ -918,6 +1372,8 @@
                 e.preventDefault();
                 e.stopPropagation();
                 mouseDown=0;
+                newObstacle=[];
+                clearAndRedraw();
             }
 
             //track mouse and draw a dot if mouse button is pressed
@@ -926,17 +1382,28 @@
                 //update mouse position
                 getMousePos(e);
                 
-                if(initSet && finSet)
+                if(isstopped && (mouseDown===1))
                 {
-                    drawShape(initX,initY,finX,finY);
-                    initSet=false;
-                    finSet=false;
-                }
-                else if (initSet)
-                {
-                    clearCanvas(canvas,ctx);
-                    redrawShapes();
-                    drawTempShape(initX,initY,mouseX,mouseY);
+                    if(canDrawObstacles && !obstacleSet)
+                    {
+                        if(allAgentsNotOnObstacle())
+                        {
+                            clearAndRedraw();
+                            drawObstacle(newObstacle.initX,newObstacle.initY,mouseX,mouseY);
+                        }
+                        else
+                        {
+                            newObstacle=[];
+                            clearAndRedraw();
+                            update_user_info("Do not draw obstacle over agent.");
+                            objectFailure=true;
+                        }
+                    }
+                    else if(hasAgent && (mouseDown===1))
+                    {
+                        moveAgent(mouseX,mouseY);
+                        clearAndRedraw();
+                    }
                 }
             }
 
